@@ -13,7 +13,7 @@ public class Account {
     private String ownerEmail;
     private String ownerPhoneNumber;
 
-     public Account(String name,String phoneNumber, String email) {
+    public Account(String name, String phoneNumber, String email) {
         this.ownerName = name;
         this.ownerPhoneNumber = phoneNumber;
         this.ownerEmail = email;
@@ -21,21 +21,25 @@ public class Account {
         // this.accountNumber = getNextAccountNumber();
 
     }
+
     public String getAccountNumber() {
         return accountNumber;
     }
+
     public BigDecimal getBalance() {
-         return  balance;
+        return balance;
     }
 
     public String getOwnerName() {
-         return  ownerName;
+        return ownerName;
     }
+
     public String getOwnerEmail() {
-         return  ownerEmail;
+        return ownerEmail;
     }
+
     public String getOwnerPhoneNumber() {
-         return  ownerPhoneNumber;
+        return ownerPhoneNumber;
     }
 
 }
