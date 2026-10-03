@@ -1,5 +1,7 @@
 package com.rob.banking.repository;
 
+import com.rob.banking.model.Account;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,5 +33,8 @@ public class AccountRepository {
         Path file = Path.of(path);
         Files.createDirectories(file.toAbsolutePath().getParent());
         Files.createFile(file);
+    }
+    public static void saveAccount(Account account) throws IOException {
+
     }
 }
