@@ -49,12 +49,13 @@ class AccountRepositoryTest {
     }
 
     @Test
-    void retrieveAllFileData_returnsAccountDetailsFromFile() throws IOException {
+    void retrieveAllFileData_returnsAllAccountsFromFile() throws IOException {
         Path file = Files.createFile(tempDir.resolve("test.txt"));
         Account account = new Account("mani", "1231", "gentle@example.com","1",new BigDecimal("0"));
-        Account account2 = new Account("gent", "8765", "man@example.com","2",new BigDecimal("0"));
+        Account account2 = new Account("gent", "8765", "man@example.com","2",new BigDecimal("50"));
         AccountRepository.appendAccount(account, file.toString());
         AccountRepository.appendAccount(account2, file.toString());
+
         List<Account> accountList = AccountRepository.retrieveAllFileData(file.toString());
 
         assertEquals("mani", accountList.getFirst().getOwnerName());
@@ -62,7 +63,26 @@ class AccountRepositoryTest {
         assertEquals("gentle@example.com", accountList.getFirst().getOwnerEmail());
         assertEquals("1", accountList.getFirst().getAccountNumber());
         assertEquals(new BigDecimal(0), accountList.getFirst().getOwnerBalance());
-        assertEquals("2", accountList.get(1).getAccountNumber());
+        assertEquals(new BigDecimal("50"), accountList.get(1).getOwnerBalance());
+    }
+    @Test
+    void findAccountUser_returnsAccountInformation() throws IOException {
+        Path file = Files.createFile(tempDir.resolve("test.txt"));
+        Account account = new Account("mani", "1231", "gentle@example.com","1",new BigDecimal("0"));
+        Account account2 = new Account("gent", "8765", "man@example.com","3",new BigDecimal("50"));
+        AccountRepository.appendAccount(account, file.toString());
+        AccountRepository.appendAccount(account2, file.toString());
+
+        Account accountFromFile = AccountRepository.findAccountUser(file.toString(),"3");
+        Account accountNotFounded = AccountRepository.findAccountUser(file.toString(),"6");
+
+        assertNotSame(null,accountFromFile);
+        assertNull(accountNotFounded);
+        assert accountFromFile != null;
+        assertEquals(new BigDecimal("50"), accountFromFile.getOwnerBalance());
+        assertEquals("gent", accountFromFile.getOwnerName());
+        assertEquals("man@example.com", accountFromFile.getOwnerEmail());
+        assertEquals("8765", accountFromFile.getOwnerPhoneNumber());
     }
 
 

@@ -83,4 +83,26 @@ public class AccountRepository {
         return accountsList;
     }
 
+    /**
+     * Retrieves user account class details given a number account
+     * @param path Location of the file
+     * @param accountNumber Account number of the account to be found
+     * @return {@code Account} If the account is found
+     *         {@code null} If the account is not found
+     * @throws NoSuchFileException If the file does not exist
+     * @throws IOException If the file cannot be read
+     */
+    public static Account findAccountUser(String path,String accountNumber) throws IOException {
+        try(Reader reader = Files.newBufferedReader(Path.of(path), StandardCharsets.UTF_8);
+            CSVParser parser = CSVFormat.DEFAULT.parse(reader);){
+            for (CSVRecord record : parser) {
+                if (record.get(3).equals(accountNumber)) {
+                    return new Account(record.get(0), record.get(1),record.get(2),record.get(3), new BigDecimal(record.get(4)));
+                }
+            }
+            return null;
+        }
+    }
+
 }
+
