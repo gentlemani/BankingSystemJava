@@ -1,6 +1,7 @@
 package com.rob.banking.repository;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -37,14 +38,31 @@ class AccountRepositoryTest {
     @Test
     void appendAccount_writesAccountDetailsToFile() throws IOException {
         Path file = Files.createFile(tempDir.resolve("test.txt"));
-        Account account = new Account("gentle", "1231", "gentle@example.com");
+        Account account = new Account("gentle", "1231", "gentle@example.com","1",new BigDecimal("0"));
         AccountRepository.appendAccount(account, file.toString());
         List<String> lines = Files.readAllLines(file);
         assertEquals(1, lines.size());
         // accountNumber, name, phoneNumber, email, balance
-        assertEquals("1,gentle,1231,gentle@example.com,0", lines.getFirst());
+        assertEquals("gentle,1231,gentle@example.com,1,0", lines.getFirst());
         String content = Files.readString(file);
         assertTrue(content.contains("gentle@example.com"));
+    }
+
+    @Test
+    void retrieveAllFileData_returnsAccountDetailsFromFile() throws IOException {
+        Path file = Files.createFile(tempDir.resolve("test.txt"));
+        Account account = new Account("mani", "1231", "gentle@example.com","1",new BigDecimal("0"));
+        Account account2 = new Account("gent", "8765", "man@example.com","2",new BigDecimal("0"));
+        AccountRepository.appendAccount(account, file.toString());
+        AccountRepository.appendAccount(account2, file.toString());
+        List<Account> accountList = AccountRepository.retrieveAllFileData(file.toString());
+
+        assertEquals("mani", accountList.getFirst().getOwnerName());
+        assertEquals("1231", accountList.getFirst().getOwnerPhoneNumber());
+        assertEquals("gentle@example.com", accountList.getFirst().getOwnerEmail());
+        assertEquals("1", accountList.getFirst().getAccountNumber());
+        assertEquals(new BigDecimal(0), accountList.getFirst().getOwnerBalance());
+        assertEquals("2", accountList.get(1).getAccountNumber());
     }
 
 
