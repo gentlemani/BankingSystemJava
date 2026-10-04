@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * Tracks balance, owner details and account identifier
  */
 public class Account {
-    private String accountNumber;
+    private String accountNumber = "1";
     private BigDecimal balance = BigDecimal.ZERO;
     private String ownerName;
     private String ownerEmail;
@@ -26,7 +26,7 @@ public class Account {
         return accountNumber;
     }
 
-    public BigDecimal getBalance() {
+    public BigDecimal getOwnerBalance() {
         return balance;
     }
 
