@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.rob.banking.model.Account;
@@ -84,6 +85,53 @@ class AccountRepositoryTest {
         assertEquals("man@example.com", accountFromFile.getOwnerEmail());
         assertEquals("8765", accountFromFile.getOwnerPhoneNumber());
     }
+    @Test
+    void writeAccounts_writesAccountsInTheRepositoryWithTruncate() throws IOException {
+        Path file = Files.createFile(tempDir.resolve("test.txt"));
+        Account account = new Account("mani", "1231", "gentle@example.com","1",new BigDecimal("0"));
+        Account account2 = new Account("gent", "8765", "man@example.com","2",new BigDecimal("50"));
+        List<Account> accounts = new ArrayList<>();
+        accounts.add(account);
+        accounts.add(account2);
 
+        AccountRepository.writeAccounts(accounts,file.toString(),WriteOptionsRepository.TRUNCATE_EXISTING_OPTION);
+        Account accountFromFile = AccountRepository.findAccountUser(file.toString(),"2");
+        assertNotSame(null,accountFromFile);
+        assert accountFromFile != null;
+        assertEquals(new BigDecimal("50"), accountFromFile.getOwnerBalance());
+        assertEquals("gent", accountFromFile.getOwnerName());
+        assertEquals("man@example.com", accountFromFile.getOwnerEmail());
+        assertEquals("8765", accountFromFile.getOwnerPhoneNumber());
+    }
+
+    @Test
+    void writeAccounts_writesAccountsInTheRepositoryWithAppend() throws IOException {
+        Path file = Files.createFile(tempDir.resolve("test.txt"));
+
+        Account account = new Account("le", "6732", "le@example.com","1",new BigDecimal("80"));
+        Account account2 = new Account("mani", "1231", "gentle@example.com","2",new BigDecimal("0"));
+        Account account3 = new Account("gent", "8765", "man@example.com","3",new BigDecimal("50"));
+        List<Account> accounts = new ArrayList<>();
+        accounts.add(account2);
+        accounts.add(account3);
+
+        AccountRepository.appendAccount(account, file.toString());
+        AccountRepository.writeAccounts(accounts,file.toString(),WriteOptionsRepository.APPEND_OPTION);
+
+        Account leAccount = AccountRepository.findAccountUser(file.toString(),"1");
+        Account accountFromFile = AccountRepository.findAccountUser(file.toString(),"3");
+
+        assertNotSame(null,accountFromFile);
+        assertNotSame(null,leAccount);
+        assert accountFromFile != null;
+        assert leAccount != null;
+
+        assertEquals("le", leAccount.getOwnerName());
+
+        assertEquals(new BigDecimal("50"), accountFromFile.getOwnerBalance());
+        assertEquals("gent", accountFromFile.getOwnerName());
+        assertEquals("man@example.com", accountFromFile.getOwnerEmail());
+        assertEquals("8765", accountFromFile.getOwnerPhoneNumber());
+    }
 
 }

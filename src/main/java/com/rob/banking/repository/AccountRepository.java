@@ -17,6 +17,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.rob.banking.repository.WriteOptionsRepository.*;
 
 /**
  * Manages the file where all the data is stored
@@ -59,7 +62,7 @@ public class AccountRepository {
         // Automatically printer is closed
         try (BufferedWriter writer = Files.newBufferedWriter(Path.of(path), StandardCharsets.UTF_8, StandardOpenOption.APPEND)) {
             CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
-            printer.printRecord(account.getOwnerName(), account.getOwnerPhoneNumber(), account.getOwnerEmail(), account.getAccountNumber(), account.getOwnerBalance());
+            printer.printRecord(toCsvValues(account));
         }
     }
 
@@ -70,39 +73,75 @@ public class AccountRepository {
      * @param path Location of the file
      * @return A list containing every stored account
      * @throws NoSuchFileException If the file does not exist
-     * @throws IOException If the file cannot be read
+     * @throws IOException         If the file cannot be read
      */
     public static List<Account> retrieveAllFileData(String path) throws IOException {
         List<Account> accountsList = new ArrayList<>();
         try (Reader reader = Files.newBufferedReader(Path.of(path), StandardCharsets.UTF_8);
              CSVParser parser = CSVFormat.DEFAULT.parse(reader)) {
             for (CSVRecord record : parser) {
-                accountsList.add(new Account(record.get(0), record.get(1),record.get(2),record.get(3), new BigDecimal(record.get(4))));
+                accountsList.add(new Account(record.get(0), record.get(1), record.get(2), record.get(3), new BigDecimal(record.get(4))));
             }
         }
         return accountsList;
     }
 
     /**
-     * Retrieves user account class details given a number account
-     * @param path Location of the file
-     * @param accountNumber Account number of the account to be found
-     * @return {@code Account} If the account is found
-     *         {@code null} If the account is not found
-     * @throws NoSuchFileException If the file does not exist
-     * @throws IOException If the file cannot be read
+     * Retrieves user account class details given an account number.
+     *
+     * @param path          Location of the file.
+     * @param accountNumber Account number of the account to be found.
+     * @return {@link Account} If the account is found.
+     * {@code null} If the account is not found.
+     * @throws NoSuchFileException If the file does not exist.
+     * @throws IOException         If the file cannot be read.
      */
-    public static Account findAccountUser(String path,String accountNumber) throws IOException {
-        try(Reader reader = Files.newBufferedReader(Path.of(path), StandardCharsets.UTF_8);
-            CSVParser parser = CSVFormat.DEFAULT.parse(reader);){
+    public static Account findAccountUser(String path, String accountNumber) throws IOException {
+        try (Reader reader = Files.newBufferedReader(Path.of(path), StandardCharsets.UTF_8);
+             CSVParser parser = CSVFormat.DEFAULT.parse(reader);) {
             for (CSVRecord record : parser) {
                 if (record.get(3).equals(accountNumber)) {
-                    return new Account(record.get(0), record.get(1),record.get(2),record.get(3), new BigDecimal(record.get(4)));
+                    return new Account(record.get(0), record.get(1), record.get(2), record.get(3), new BigDecimal(record.get(4)));
                 }
             }
             return null;
         }
     }
 
+    /**
+     * Writes the accounts to an existing file, either replacing its content or
+     * appending to it.
+     *
+     * @param accounts Accounts to be written into the file.
+     * @param path     Location of the file.
+     * @param writeOptionsRepository Whether replace or append the file content.
+     * @throws NoSuchFileException if The file does not exist.
+     * @throws IOException         If something fails.
+     */
+    public static void writeAccounts(List<Account> accounts, String path, WriteOptionsRepository writeOptionsRepository) throws IOException {
+        Objects.requireNonNull(writeOptionsRepository, "WriteOptionsRepository cannot be null");
+        try (BufferedWriter writer = Files.newBufferedWriter(Path.of(path), StandardCharsets.UTF_8, StandardOpenOption.WRITE, writeOptionsRepository.getOption()); CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT)) {
+            for (Account account : accounts) {
+                printer.printRecord(toCsvValues(account));
+            }
+        }
+
+    }
+
+    /**
+     * Converts an account values into one CSV line at a specific order.
+     *
+     * @param account Account to convert
+     * @return values of the account in the order they are written to the file
+     */
+    private static Object[] toCsvValues(Account account) {
+        return new Object[]{
+                account.getOwnerName(),
+                account.getOwnerPhoneNumber(),
+                account.getOwnerEmail(),
+                account.getAccountNumber(),
+                account.getOwnerBalance()
+        };
+    }
 }
 
