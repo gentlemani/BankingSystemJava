@@ -7,6 +7,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -26,11 +27,16 @@ import static com.rob.banking.repository.WriteOptionsRepository.*;
  */
 public class AccountRepository {
     private String path;
+    private final String tmpFilePath;
 
-    public AccountRepository(String path){
+    public AccountRepository(String path) {
+        this.path = path;
+        this.tmpFilePath = "/repository/";
+    }
+
+    public void setPath(String path) {
         this.path = path;
     }
-    public void setPath(String path){this.path = path;}
 
     public String getPath() {
         return path;
@@ -67,8 +73,9 @@ public class AccountRepository {
      */
     public void appendAccount(Account account) throws IOException {
         // Automatically printer is closed
-        try (BufferedWriter writer = Files.newBufferedWriter(Path.of(this.path), StandardCharsets.UTF_8, StandardOpenOption.APPEND)) {
-            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT);
+        try (BufferedWriter writer = Files.newBufferedWriter(Path.of(this.path), StandardCharsets.UTF_8,
+                                                             StandardOpenOption.APPEND); CSVPrinter printer = new CSVPrinter(
+                writer, CSVFormat.DEFAULT)) {
             printer.printRecord(toCsvValues(account));
         }
     }
@@ -83,10 +90,12 @@ public class AccountRepository {
      */
     public List<Account> retrieveAllFileData() throws IOException {
         List<Account> accountsList = new ArrayList<>();
-        try (Reader reader = Files.newBufferedReader(Path.of(this.path), StandardCharsets.UTF_8);
-             CSVParser parser = CSVFormat.DEFAULT.parse(reader)) {
+        try (Reader reader = Files.newBufferedReader(Path.of(this.path),
+                                                     StandardCharsets.UTF_8); CSVParser parser = CSVFormat.DEFAULT.parse(
+                reader)) {
             for (CSVRecord record : parser) {
-                accountsList.add(new Account(record.get(0), record.get(1), record.get(2), record.get(3), new BigDecimal(record.get(4))));
+                accountsList.add(new Account(record.get(0), record.get(1), record.get(2), record.get(3),
+                                             new BigDecimal(record.get(4))));
             }
         }
         return accountsList;
@@ -102,11 +111,13 @@ public class AccountRepository {
      * @throws IOException         If the file cannot be read.
      */
     public Account findAccountUser(String accountNumber) throws IOException {
-        try (Reader reader = Files.newBufferedReader(Path.of(this.path), StandardCharsets.UTF_8);
-             CSVParser parser = CSVFormat.DEFAULT.parse(reader);) {
+        try (Reader reader = Files.newBufferedReader(Path.of(this.path),
+                                                     StandardCharsets.UTF_8); CSVParser parser = CSVFormat.DEFAULT.parse(
+                reader);) {
             for (CSVRecord record : parser) {
                 if (record.get(3).equals(accountNumber)) {
-                    return new Account(record.get(0), record.get(1), record.get(2), record.get(3), new BigDecimal(record.get(4)));
+                    return new Account(record.get(0), record.get(1), record.get(2), record.get(3),
+                                       new BigDecimal(record.get(4)));
                 }
             }
             return null;
@@ -117,14 +128,18 @@ public class AccountRepository {
      * Writes the accounts to an existing file, either replacing its content or
      * appending to it.
      *
-     * @param accounts Accounts to be written into the file.
+     * @param accounts               Accounts to be written into the file.
      * @param writeOptionsRepository Whether replace or append the file content.
      * @throws NoSuchFileException if The file does not exist.
      * @throws IOException         If something fails.
      */
-    public void writeAccounts(List<Account> accounts, WriteOptionsRepository writeOptionsRepository ) throws IOException {
+    public void writeAccounts(List<Account> accounts, WriteOptionsRepository writeOptionsRepository) throws
+                                                                                                     IOException {
         Objects.requireNonNull(writeOptionsRepository, "WriteOptionsRepository cannot be null");
-        try (BufferedWriter writer = Files.newBufferedWriter(Path.of(this.path), StandardCharsets.UTF_8, StandardOpenOption.WRITE, writeOptionsRepository.getOption()); CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(Path.of(this.path), StandardCharsets.UTF_8,
+                                                             StandardOpenOption.WRITE,
+                                                             writeOptionsRepository.getOption()); CSVPrinter printer = new CSVPrinter(
+                writer, CSVFormat.DEFAULT)) {
             for (Account account : accounts) {
                 printer.printRecord(toCsvValues(account));
             }
@@ -132,6 +147,14 @@ public class AccountRepository {
 
     }
 
+    /**
+     * Creates a temporary file to save the date and then update to the original file
+     * @throws IOException
+     */
+    public void updateRepositoryData() throws IOException {
+        Path tmpFile = Files.createTempFile(Path.of(this.tmpFilePath), "update_repository", ".tmp");
+
+    }
 
     /**
      * Converts an account values into one CSV line at a specific order.
@@ -140,13 +163,7 @@ public class AccountRepository {
      * @return values of the account in the order they are written to the file
      */
     private static Object[] toCsvValues(Account account) {
-        return new Object[]{
-                account.getOwnerName(),
-                account.getOwnerPhoneNumber(),
-                account.getOwnerEmail(),
-                account.getAccountNumber(),
-                account.getOwnerBalance()
-        };
+        return new Object[]{account.getOwnerName(), account.getOwnerPhoneNumber(), account.getOwnerEmail(), account.getAccountNumber(), account.getOwnerBalance()};
     }
 }
 
