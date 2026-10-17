@@ -12,10 +12,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,21 +23,24 @@ import static com.rob.banking.repository.WriteOptionsRepository.*;
  * Manages the file where all the data is stored
  */
 public class AccountRepository {
-    private String path;
+    private final String path;
     private final String tmpFilePath;
 
     public AccountRepository(String path) {
         this.path = path;
-        this.tmpFilePath = "/repository/";
+        this.tmpFilePath = "/repository/tmp/";
+    }
+    public AccountRepository(String path,String tmpFilePath) {
+        this.path = path;
+        this.tmpFilePath = tmpFilePath;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
 
     public String getPath() {
         return path;
     }
+
+    public String getTmpFilePath(){return tmpFilePath;}
 
     /**
      * Checks whether a file exists at a specific path
@@ -104,7 +104,7 @@ public class AccountRepository {
     /**
      * Retrieves user account class details given an account number.
      *
-     * @param accountNumber Account number of the account to be found.
+     * @param accountNumber Account number to be founded.
      * @return {@link Account} If the account is found.
      * {@code null} If the account is not found.
      * @throws NoSuchFileException If the file does not exist.
@@ -148,11 +148,24 @@ public class AccountRepository {
     }
 
     /**
-     * Creates a temporary file to save the date and then update to the original file
+     * Creates a temporary file to save the data and then update to the original file
+     *
      * @throws IOException
      */
-    public void updateRepositoryData() throws IOException {
+    public void updateRepositoryData(List<Account> accounts) throws IOException {
         Path tmpFile = Files.createTempFile(Path.of(this.tmpFilePath), "update_repository", ".tmp");
+        try (BufferedWriter writer = Files.newBufferedWriter(tmpFile, StandardCharsets.UTF_8,
+                                                             StandardOpenOption.WRITE,
+                                                             StandardOpenOption.TRUNCATE_EXISTING); CSVPrinter printer = new CSVPrinter(
+                writer, CSVFormat.DEFAULT)) {
+            for (Account account : accounts) {
+                printer.printRecord(toCsvValues(account));
+            }
+            Files.move(tmpFile, Path.of(this.path), StandardCopyOption.ATOMIC_MOVE);
+
+        }finally{
+            Files.deleteIfExists(tmpFile);
+        }
 
     }
 
