@@ -45,7 +45,7 @@ class AccountRepositoryTest {
     void appendAccount_writesAccountDetailsToFile() throws IOException {
         Path file = Files.createFile(tempDir.resolve("test.txt"));
         accountRepository = new AccountRepository(file.toString());
-        Account account = new Account("gentle", "1231", "gentle@example.com","1",new BigDecimal("0"));
+        Account account = new Account("gentle", "1231", "gentle@example.com", "1", new BigDecimal("0"));
         accountRepository.appendAccount(account);
         List<String> lines = Files.readAllLines(file);
         assertEquals(1, lines.size());
@@ -59,8 +59,8 @@ class AccountRepositoryTest {
     void retrieveAllFileData_returnsAllAccountsFromFile() throws IOException {
         Path file = Files.createFile(tempDir.resolve("test.txt"));
         accountRepository = new AccountRepository(file.toString());
-        Account account = new Account("mani", "1231", "gentle@example.com","1",new BigDecimal("0"));
-        Account account2 = new Account("gent", "8765", "man@example.com","2",new BigDecimal("50"));
+        Account account = new Account("mani", "1231", "gentle@example.com", "1", new BigDecimal("0"));
+        Account account2 = new Account("gent", "8765", "man@example.com", "2", new BigDecimal("50"));
         accountRepository.appendAccount(account);
         accountRepository.appendAccount(account2);
 
@@ -73,20 +73,21 @@ class AccountRepositoryTest {
         assertEquals(new BigDecimal(0), accountList.getFirst().getOwnerBalance());
         assertEquals(new BigDecimal("50"), accountList.get(1).getOwnerBalance());
     }
+
     @Test
     void findAccountUser_returnsAccountInformation() throws IOException {
         Path file = Files.createFile(tempDir.resolve("test.txt"));
         accountRepository = new AccountRepository(file.toString());
 
-        Account account = new Account("mani", "1231", "gentle@example.com","1",new BigDecimal("0"));
-        Account account2 = new Account("gent", "8765", "man@example.com","3",new BigDecimal("50"));
+        Account account = new Account("mani", "1231", "gentle@example.com", "1", new BigDecimal("0"));
+        Account account2 = new Account("gent", "8765", "man@example.com", "3", new BigDecimal("50"));
         accountRepository.appendAccount(account);
         accountRepository.appendAccount(account2);
 
         Account accountFromFile = accountRepository.findAccountUser("3");
         Account accountNotFounded = accountRepository.findAccountUser("6");
 
-        assertNotSame(null,accountFromFile);
+        assertNotSame(null, accountFromFile);
         assertNull(accountNotFounded);
         assert accountFromFile != null;
         assertEquals(new BigDecimal("50"), accountFromFile.getOwnerBalance());
@@ -94,19 +95,20 @@ class AccountRepositoryTest {
         assertEquals("man@example.com", accountFromFile.getOwnerEmail());
         assertEquals("8765", accountFromFile.getOwnerPhoneNumber());
     }
+
     @Test
     void writeAccounts_writesAccountsInTheRepositoryWithTruncate() throws IOException {
         Path file = Files.createFile(tempDir.resolve("test.txt"));
         accountRepository = new AccountRepository(file.toString());
-        Account account = new Account("mani", "1231", "gentle@example.com","1",new BigDecimal("0"));
-        Account account2 = new Account("gent", "8765", "man@example.com","2",new BigDecimal("50"));
+        Account account = new Account("mani", "1231", "gentle@example.com", "1", new BigDecimal("0"));
+        Account account2 = new Account("gent", "8765", "man@example.com", "2", new BigDecimal("50"));
         List<Account> accounts = new ArrayList<>();
         accounts.add(account);
         accounts.add(account2);
 
-        accountRepository.writeAccounts(accounts,WriteOptionsRepository.TRUNCATE_EXISTING_OPTION);
+        accountRepository.writeAccounts(accounts, WriteOptionsRepository.TRUNCATE_EXISTING_OPTION);
         Account accountFromFile = accountRepository.findAccountUser("2");
-        assertNotSame(null,accountFromFile);
+        assertNotSame(null, accountFromFile);
         assert accountFromFile != null;
         assertEquals(new BigDecimal("50"), accountFromFile.getOwnerBalance());
         assertEquals("gent", accountFromFile.getOwnerName());
@@ -117,32 +119,67 @@ class AccountRepositoryTest {
     @Test
     void writeAccounts_writesAccountsInTheRepositoryWithAppend() throws IOException {
         Path file = Files.createFile(tempDir.resolve("test.txt"));
-        accountRepository = new AccountRepository(file.toString());
+        AccountRepository accountRepository = new AccountRepository(file.toString());
 
-        Account account = new Account("le", "6732", "le@example.com","1",new BigDecimal("80"));
-        Account account2 = new Account("mani", "1231", "gentle@example.com","2",new BigDecimal("0"));
-        Account account3 = new Account("gent", "8765", "man@example.com","3",new BigDecimal("50"));
+        Account account = new Account("le", "6732", "le@example.com", "1", new BigDecimal("80"));
+        Account account2 = new Account("mani", "1231", "gentle@example.com", "2", new BigDecimal("0"));
+        Account account3 = new Account("gent", "8765", "man@example.com", "3", new BigDecimal("50"));
         List<Account> accounts = new ArrayList<>();
         accounts.add(account2);
         accounts.add(account3);
 
+        //Adds one account first
         accountRepository.appendAccount(account);
-        accountRepository.writeAccounts(accounts,WriteOptionsRepository.APPEND_OPTION);
+        //Appends new accounts
+        accountRepository.writeAccounts(accounts, WriteOptionsRepository.APPEND_OPTION);
 
-        Account leAccount = accountRepository.findAccountUser("1");
-        Account accountFromFile = accountRepository.findAccountUser("3");
+        Account userFromFile1 = accountRepository.findAccountUser("1");
+        Account userFromFile2 = accountRepository.findAccountUser("3");
 
-        assertNotSame(null,accountFromFile);
-        assertNotSame(null,leAccount);
-        assert accountFromFile != null;
-        assert leAccount != null;
+        assertNotSame(null, userFromFile1);
+        assertNotSame(null, userFromFile2);
+        assert userFromFile1 != null;
+        assert userFromFile2 != null;
+        //Checks whether first entry still exists
+        assertEquals("le", userFromFile1.getOwnerName());
 
-        assertEquals("le", leAccount.getOwnerName());
+        assertEquals(new BigDecimal("50"), userFromFile2.getOwnerBalance());
+        assertEquals("gent", userFromFile2.getOwnerName());
+        assertEquals("man@example.com", userFromFile2.getOwnerEmail());
+        assertEquals("8765", userFromFile2.getOwnerPhoneNumber());
+    }
 
-        assertEquals(new BigDecimal("50"), accountFromFile.getOwnerBalance());
-        assertEquals("gent", accountFromFile.getOwnerName());
-        assertEquals("man@example.com", accountFromFile.getOwnerEmail());
-        assertEquals("8765", accountFromFile.getOwnerPhoneNumber());
+    @Test
+    void updateRepositoryData_updatesUsersData() throws IOException {
+        Path file = Files.createFile(tempDir.resolve("test.txt"));
+
+        List<Account> accounts = new ArrayList<>();
+        AccountRepository accountRepository = new AccountRepository(file.toString());
+        Account account = new Account("le", "6732", "le@example.com", "1", new BigDecimal("80"));
+        Account account2 = new Account("mani", "1231", "gentle@example.com", "2", new BigDecimal("0"));
+
+        // Creates the repository
+        accounts.add(account);
+        accounts.add(account2);
+        accountRepository.writeAccounts(accounts, WriteOptionsRepository.TRUNCATE_EXISTING_OPTION);
+
+        Account accountFixed = new Account("gentle", "6732", "gentle@example.com", "1", new BigDecimal("80"));
+        accounts.set(0, accountFixed);
+
+        Account accountFromFileBeforeChange = accountRepository.findAccountUser("1");
+
+        assertEquals("le", accountFromFileBeforeChange.getOwnerName());
+        assertEquals("le@example.com", accountFromFileBeforeChange.getOwnerEmail());
+
+        // Updates repository with the new Data
+        accountRepository.updateRepositoryData(accounts);
+
+        Account accountFromFileAfterChange = accountRepository.findAccountUser("1");
+
+        assertEquals("gentle", accountFromFileAfterChange.getOwnerName());
+        assertEquals("gentle@example.com", accountFromFileAfterChange.getOwnerEmail());
+        assertNotEquals("le", accountFromFileAfterChange.getOwnerName());
+        assertNotEquals("le@example.com", accountFromFileAfterChange.getOwnerEmail());
     }
 
 }
