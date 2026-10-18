@@ -24,23 +24,17 @@ import static com.rob.banking.repository.WriteOptionsRepository.*;
  */
 public class AccountRepository {
     private final String path;
-    private final String tmpFilePath;
 
     public AccountRepository(String path) {
         this.path = path;
-        this.tmpFilePath = "/repository/tmp/";
     }
-    public AccountRepository(String path,String tmpFilePath) {
-        this.path = path;
-        this.tmpFilePath = tmpFilePath;
-    }
+
 
 
     public String getPath() {
         return path;
     }
 
-    public String getTmpFilePath(){return tmpFilePath;}
 
     /**
      * Checks whether a file exists at a specific path
@@ -129,7 +123,7 @@ public class AccountRepository {
      * appending to it.
      *
      * @param accounts               Accounts to be written into the file.
-     * @param writeOptionsRepository Whether replace or append the file content.
+     * @param writeOptionsRepository Whether to replace or append the file content.
      * @throws NoSuchFileException if The file does not exist.
      * @throws IOException         If something fails.
      */
@@ -148,22 +142,46 @@ public class AccountRepository {
     }
 
     /**
-     * Creates a temporary file to save the data and then update to the original file
+     * Writes the accounts to an existing file, either replacing its content or
+     *  appending to it.
      *
-     * @throws IOException
+     * @param accounts Accounts to be written into the file.
+     * @param writeOptionsRepository Whether to replace or append the file content.
+     * @param repositoryPath Path of the repository.
+     * @throws NoSuchFileException if The file does not exist.
+     * @throws IOException If something fails.
      */
-    public void updateRepositoryData(List<Account> accounts) throws IOException {
-        Path tmpFile = Files.createTempFile(Path.of(this.tmpFilePath), "update_repository", ".tmp");
-        try (BufferedWriter writer = Files.newBufferedWriter(tmpFile, StandardCharsets.UTF_8,
+    public void writeAccounts(List<Account> accounts, WriteOptionsRepository writeOptionsRepository,Path repositoryPath) throws
+                                                                                                                           IOException {
+        Objects.requireNonNull(writeOptionsRepository, "WriteOptionsRepository cannot be null");
+        try (BufferedWriter writer = Files.newBufferedWriter(repositoryPath, StandardCharsets.UTF_8,
                                                              StandardOpenOption.WRITE,
-                                                             StandardOpenOption.TRUNCATE_EXISTING); CSVPrinter printer = new CSVPrinter(
+                                                             writeOptionsRepository.getOption()); CSVPrinter printer = new CSVPrinter(
                 writer, CSVFormat.DEFAULT)) {
             for (Account account : accounts) {
                 printer.printRecord(toCsvValues(account));
             }
-            Files.move(tmpFile, Path.of(this.path), StandardCopyOption.ATOMIC_MOVE);
+        }
 
-        }finally{
+    }
+
+
+    /**
+     * Creates a temporary file to save the data and then update to the original file.
+     *
+     * @param accounts List of all accounts needed to update the repository.
+     * @throws IOException If something fails.
+     */
+    public void updateRepositoryData(List<Account> accounts) throws IOException {
+        Path target = Path.of(this.path).toAbsolutePath();
+        // Temporary file in the same directory as the repository
+        Path tmpFile = Files.createTempFile(target.getParent(), "update_repository", ".tmp");
+        try {
+            writeAccounts(accounts, APPEND_OPTION, tmpFile);
+            Files.move(tmpFile, Path.of(this.path), StandardCopyOption.ATOMIC_MOVE,
+                       StandardCopyOption.REPLACE_EXISTING);
+
+        } finally {
             Files.deleteIfExists(tmpFile);
         }
 

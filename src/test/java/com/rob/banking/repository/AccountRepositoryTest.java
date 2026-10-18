@@ -154,7 +154,7 @@ class AccountRepositoryTest {
         Path file = Files.createFile(tempDir.resolve("test.txt"));
 
         List<Account> accounts = new ArrayList<>();
-        AccountRepository accountRepository = new AccountRepository(file.toString(), tempDir.toString());
+        AccountRepository accountRepository = new AccountRepository(file.toString());
         Account account = new Account("le", "6732", "le@example.com", "1", new BigDecimal("80"));
         Account account2 = new Account("mani", "1231", "gentle@example.com", "2", new BigDecimal("0"));
 
