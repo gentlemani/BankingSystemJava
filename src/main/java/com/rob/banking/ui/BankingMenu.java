@@ -1,6 +1,8 @@
 package com.rob.banking.ui;
 
+import com.rob.banking.model.Account;
 import com.rob.banking.utils.InputParserUtil;
+import com.rob.banking.utils.InputValidatorUtil;
 
 import java.util.OptionalInt;
 import java.util.Scanner;
@@ -30,6 +32,13 @@ public class BankingMenu {
         return this.scanner.nextLine();
     }
 
+    /**
+     * Executes the select option by the user.
+     *
+     * @param input A string containing the option number.
+     * @return The selected number option as {@code int}.
+     * <p>In case it is not a valid option, it will return {@code -1}.
+     */
     private int executeMenuOption(String input) {
         int option = validateIntegerInput(input);
         switch (option) {
@@ -51,11 +60,36 @@ public class BankingMenu {
         return option;
     }
 
+    /**
+     * Submenu for the creation of an account.
+     */
     private void createAccountOption() {
-
+        String name;
+        String phoneNumber;
+        String email;
+        Boolean isvalidField;
         System.out.println("*** Account creation ***");
         System.out.println("Please enter account name");
-        this.scanner.nextLine();
+        name = this.scanner.nextLine();
+        do {
+
+            System.out.println("Please enter your phone number");
+            phoneNumber = this.scanner.nextLine();
+            isvalidField = InputValidatorUtil.isValidPhoneNumber(phoneNumber);
+            if(!isvalidField) {
+                System.out.println("Please enter a valid phone number");
+            }
+        }while(!isvalidField);
+        do {
+            System.out.println("Please enter account email");
+            email = this.scanner.nextLine();
+            isvalidField = InputValidatorUtil.isValidEmail(email);
+            if(!isvalidField) {
+                System.out.println("Please enter a valid email");
+            }
+        }while(!isvalidField);
+
+
 
     }
 
