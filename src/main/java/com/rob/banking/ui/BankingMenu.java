@@ -17,6 +17,13 @@ public class BankingMenu {
     public BankingMenu(Scanner scanner, String repositoryPath) {
         this.scanner = scanner;
         this.accountRepository = new AccountRepository(repositoryPath);
+        if(!accountRepository.fileExists()){
+            try{
+                accountRepository.createFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public void menuOptions() {
