@@ -1,17 +1,22 @@
 package com.rob.banking.ui;
 
 import com.rob.banking.model.Account;
+import com.rob.banking.repository.AccountRepository;
 import com.rob.banking.utils.InputParserUtil;
 import com.rob.banking.utils.InputValidatorUtil;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.OptionalInt;
 import java.util.Scanner;
 
 public class BankingMenu {
     private final Scanner scanner;
+    private final AccountRepository accountRepository;
 
-    public BankingMenu(Scanner scanner) {
+    public BankingMenu(Scanner scanner, String repositoryPath) {
         this.scanner = scanner;
+        this.accountRepository = new AccountRepository(repositoryPath);
     }
 
     public void menuOptions() {
@@ -67,7 +72,7 @@ public class BankingMenu {
         String name;
         String phoneNumber;
         String email;
-        Boolean isvalidField;
+        boolean isValidField;
         System.out.println("*** Account creation ***");
         System.out.println("Please enter account name");
         name = this.scanner.nextLine();
@@ -75,20 +80,29 @@ public class BankingMenu {
 
             System.out.println("Please enter your phone number");
             phoneNumber = this.scanner.nextLine();
-            isvalidField = InputValidatorUtil.isValidPhoneNumber(phoneNumber);
-            if(!isvalidField) {
-                System.out.println("Please enter a valid phone number");
+            isValidField = InputValidatorUtil.isValidPhoneNumber(phoneNumber);
+            if (!isValidField) {
+                System.out.println("Please enter a valid phone number (10 digits)");
             }
-        }while(!isvalidField);
+        } while (!isValidField);
         do {
             System.out.println("Please enter account email");
             email = this.scanner.nextLine();
-            isvalidField = InputValidatorUtil.isValidEmail(email);
-            if(!isvalidField) {
+            isValidField = InputValidatorUtil.isValidEmail(email);
+            if (!isValidField) {
                 System.out.println("Please enter a valid email");
             }
-        }while(!isvalidField);
+        } while (!isValidField);
+        try {
+            String lastId = accountRepository.getLastId();
+            int newId = Integer.parseInt(lastId) + 1;
 
+            Account account = new Account(name, phoneNumber, email, String.valueOf(newId), BigDecimal.ZERO);
+            accountRepository.appendAccount(account);
+
+        } catch (IOException e) {
+            System.out.println("Error while reading file");
+        }
 
 
     }

@@ -11,7 +11,7 @@ public class BankingSystemApp {
 
     void main(String[] args){
         try(Scanner scanner = new Scanner(System.in)){
-            BankingMenu menu = new BankingMenu(scanner);
+            BankingMenu menu = new BankingMenu(scanner,"/repository");
             menu.menuOptions();
 
         }
