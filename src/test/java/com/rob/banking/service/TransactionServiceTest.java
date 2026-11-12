@@ -48,12 +48,12 @@ class TransactionServiceTest {
         TransactionService transactionservice = new TransactionService(file.toString());
 
         //Checks before transaction is done
-        List<Account> accounts = accountRepository.retrieveAllFileData();
+        List<Account> accounts = accountRepository.getAllFileData();
         assertEquals(BigDecimal.ZERO,accounts.getFirst().getOwnerBalance());
 
 
         transactionservice.makeTransaction(transaction);
-        accounts = accountRepository.retrieveAllFileData();
+        accounts = accountRepository.getAllFileData();
         assertEquals(1,accounts.size());
         assertEquals(new BigDecimal("28"),accounts.getFirst().getOwnerBalance());
         assertEquals("1",accounts.getFirst().getAccountNumber());
@@ -101,12 +101,12 @@ class TransactionServiceTest {
         TransactionService transactionservice = new TransactionService(file.toString());
 
         //Checks before transaction is done
-        List<Account> accounts = accountRepository.retrieveAllFileData();
+        List<Account> accounts = accountRepository.getAllFileData();
         assertEquals(new BigDecimal("87"),accounts.getFirst().getOwnerBalance());
 
 
         transactionservice.makeTransaction(transaction);
-        accounts = accountRepository.retrieveAllFileData();
+        accounts = accountRepository.getAllFileData();
         assertEquals(1,accounts.size());
         assertEquals(BigDecimal.ZERO,accounts.getFirst().getOwnerBalance());
         assertEquals("9",accounts.getFirst().getAccountNumber());
@@ -124,12 +124,12 @@ class TransactionServiceTest {
         TransactionService transactionservice = new TransactionService(file.toString());
 
         //Checks before transaction is done
-        List<Account> accounts = accountRepository.retrieveAllFileData();
+        List<Account> accounts = accountRepository.getAllFileData();
         assertEquals(new BigDecimal("80"),accounts.getFirst().getOwnerBalance());
 
 
         transactionservice.makeTransaction(transaction);
-        accounts = accountRepository.retrieveAllFileData();
+        accounts = accountRepository.getAllFileData();
         assertEquals(1,accounts.size());
         assertEquals(new BigDecimal("60"),accounts.getFirst().getOwnerBalance());
         assertEquals("9",accounts.getFirst().getAccountNumber());

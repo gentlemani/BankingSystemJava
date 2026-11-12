@@ -7,7 +7,6 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -82,7 +81,7 @@ public class AccountRepository {
      * @throws NoSuchFileException If the file does not exist
      * @throws IOException         If the file cannot be read
      */
-    public List<Account> retrieveAllFileData() throws IOException {
+    public List<Account> getAllFileData() throws IOException {
         List<Account> accountsList = new ArrayList<>();
         try (Reader reader = Files.newBufferedReader(Path.of(this.path),
                                                      StandardCharsets.UTF_8); CSVParser parser = CSVFormat.DEFAULT.parse(
@@ -93,6 +92,22 @@ public class AccountRepository {
             }
         }
         return accountsList;
+    }
+
+    /**
+     * Checks last account ID and returns the value.
+     * <p>If there are no accounts, the function will return {@code 0}.
+     * @return A {@code String} containing the last ID from the repository.
+     * @throws IOException If the file cannot be read
+     */
+    public String getLastId() throws IOException {
+        List<Account> accountList = getAllFileData();
+        if (accountList.isEmpty()) {
+            return "0";
+        }
+        Account lastAccount = accountList.getLast();
+        return lastAccount.getAccountNumber();
+
     }
 
     /**
