@@ -56,15 +56,15 @@ class AccountRepositoryTest {
     }
 
     @Test
-    void retrieveAllFileData_returnsAllAccountsFromFile() throws IOException {
+    void getAllFileData_returnsAllAccountsFromFile() throws IOException {
         Path file = Files.createFile(tempDir.resolve("test.txt"));
-        accountRepository = new AccountRepository(file.toString());
+        AccountRepository accountRepository = new AccountRepository(file.toString());
         Account account = new Account("mani", "1231", "gentle@example.com", "1", new BigDecimal("0"));
         Account account2 = new Account("gent", "8765", "man@example.com", "2", new BigDecimal("50"));
         accountRepository.appendAccount(account);
         accountRepository.appendAccount(account2);
 
-        List<Account> accountList = accountRepository.retrieveAllFileData();
+        List<Account> accountList = accountRepository.getAllFileData();
 
         assertEquals("mani", accountList.getFirst().getOwnerName());
         assertEquals("1231", accountList.getFirst().getOwnerPhoneNumber());
@@ -72,6 +72,22 @@ class AccountRepositoryTest {
         assertEquals("1", accountList.getFirst().getAccountNumber());
         assertEquals(new BigDecimal(0), accountList.getFirst().getOwnerBalance());
         assertEquals(new BigDecimal("50"), accountList.get(1).getOwnerBalance());
+    }
+    @Test
+    void getLastId_returnsLastIdString() throws IOException {
+        Path file = Files.createFile(tempDir.resolve("test.txt"));
+        AccountRepository accountRepository = new AccountRepository(file.toString());
+        Account account = new Account("mani", "1231", "gentle@example.com", "1", new BigDecimal("0"));
+        Account account2 = new Account("gent", "8765", "man@example.com", "8", new BigDecimal("50"));
+        Account account3 = new Account("gentle", "7685", "mani@ex.com", "10", new BigDecimal("50"));
+        accountRepository.appendAccount(account);
+        accountRepository.appendAccount(account2);
+
+        assertEquals("8", accountRepository.getLastId());
+
+        accountRepository.appendAccount(account3);
+
+        assertEquals("10",accountRepository.getLastId());
     }
 
     @Test

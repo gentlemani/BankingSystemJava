@@ -28,7 +28,7 @@ public class TransactionService {
             // One transaction at a time
             LOCK.lock();
 
-            List<Account> accountList = accountRepository.retrieveAllFileData();
+            List<Account> accountList = accountRepository.getAllFileData();
             BigDecimal amount = transaction.getAmount();
             Account account = transaction.getAccount();
             switch(transaction.getType()) {
