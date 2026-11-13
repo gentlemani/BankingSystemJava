@@ -65,7 +65,7 @@ public class Account {
         Objects.requireNonNull(amountToWithdraw);
         requirePositiveValue(amountToWithdraw);
         if(currentBalance.compareTo(amountToWithdraw) < 0){
-            throw new IllegalArgumentException("Insufficient balance");
+            throw new InsufficientFundsException("Insufficient balance");
         }
     }
 
