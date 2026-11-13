@@ -26,42 +26,47 @@ public final class DepositMenu {
         OptionalInt inputValue;
         Account account;
         TransactionService transactionService = new TransactionService(accountRepository.getPath());
+        Optional<BigDecimal> amount;
 
         System.out.println("*** Deposit Menu ***");
-        do{
+        do {
             isValidInput = false;
             System.out.println("Please enter account number: ");
             accountNumber = scanner.nextLine();
             inputValue = InputParserUtil.parseIntegerInput(accountNumber);
-            if(inputValue.isEmpty()){
+            if (inputValue.isEmpty()) {
                 System.out.println("Please enter a valid number");
-            }else {
+            } else {
                 accountNumber = String.valueOf(inputValue.getAsInt());
                 isValidInput = true;
             }
-        }while (!isValidInput);
+        } while (!isValidInput);
+
         do {
             isValidInput = false;
             System.out.print("Please enter the amount to be deposited: ");
-            Optional<BigDecimal> amount = InputParserUtil.parseBigDecimalInput(scanner.nextLine());
-            if(amount.isEmpty()){
-                System.out.println("Please enter a valid number.\n* A maximum 2 decimals is allowed.\n* Only positive numbers are accepted");
-            }else {
+            amount = InputParserUtil.parseBigDecimalInput(scanner.nextLine());
+            if (amount.isEmpty()) {
+                System.out.println(
+                        "Please enter a valid number.\n* A maximum 2 decimals is allowed.\n* Only positive numbers are accepted");
+            } else {
                 depositAmount = amount.get();
                 isValidInput = true;
             }
-        }while (!isValidInput);
+        } while (!isValidInput);
 
         try {
             account = accountRepository.findAccountUser(accountNumber);
-            if(account == null){
+            if (account == null) {
                 System.out.println("Account not found");
-            }else{
-
+            } else {
                 transactionService.makeTransaction(new Transaction(account, depositAmount, TransactionType.DEPOSIT));
+                System.out.println("--- Transaction completed successfully ---");
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("A problem occurred during the transaction");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Please enter a valid amount.\n You cannot withdraw more than your available balance");
         }
     }
 }
