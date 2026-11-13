@@ -36,8 +36,12 @@ public class MainBankMenu {
     private String readMenuOptions() {
         System.out.println("***** Welcome to Menu *****");
         for (MenuOptionEnum option : MenuOptionEnum.values()) {
+            if(option == MenuOptionEnum.UNKNOWN_OPTION){
+                continue;
+            }
             System.out.println(option.getCode() + ". " + option.getLabel());
         }
+        System.out.print("Option: ");
         return this.scanner.nextLine();
     }
 
