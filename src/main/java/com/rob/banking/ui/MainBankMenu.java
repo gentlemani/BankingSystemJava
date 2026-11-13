@@ -62,6 +62,7 @@ public class MainBankMenu {
                 DepositMenu.menu(this.scanner,this.accountRepository);
                 break;
             case MenuOptionEnum.WITHDRAW:
+                WithdrawMenu.menu(this.scanner,this.accountRepository);
                 break;
             case MenuOptionEnum.ACCOUNT_DETAIL:
                 break;

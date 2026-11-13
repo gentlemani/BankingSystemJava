@@ -55,6 +55,7 @@ public final class CreateAccountMenu {
 
             Account account = new Account(name, phoneNumber, email, String.valueOf(newId), BigDecimal.ZERO);
             accountRepository.appendAccount(account);
+            System.out.println("Account created");
 
         } catch (IOException e) {
             System.out.println("Error while reading file");
