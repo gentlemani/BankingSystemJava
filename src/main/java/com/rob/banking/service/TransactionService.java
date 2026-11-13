@@ -19,7 +19,7 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private static final ReentrantLock LOCK = new ReentrantLock();
 
-    public TransactionService(String path) throws IOException {
+    public TransactionService(String path){
         this.accountRepository = new AccountRepository(path);
     }
 
