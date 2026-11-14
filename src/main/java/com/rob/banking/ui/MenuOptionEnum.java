@@ -2,11 +2,12 @@ package com.rob.banking.ui;
 
 public enum MenuOptionEnum {
     UNKNOWN_OPTION(-1,"Invalid option"),
-    CREATE_ACCOUNT(1,"Create Account"),
+    CREATE_ACCOUNT(1,"Create account"),
     DEPOSIT(2,"Deposit"),
     WITHDRAW(3,"Withdraw"),
     ACCOUNT_DETAIL(4,"Account details"),
-    EXIT(5, "Exit");
+    DELETE_ACCOUNT(5,"Delete account"),
+    EXIT(6, "Exit");
 
     private final int code;
     private final String label;
