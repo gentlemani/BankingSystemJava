@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.OptionalInt;
 import java.util.Scanner;
 
+/**
+ * Main menu class that helps users choose a posible action
+ */
 public class MainBankMenu {
     private final Scanner scanner;
     private final AccountRepository accountRepository;
@@ -68,6 +71,7 @@ public class MainBankMenu {
                 AccountDetailMenu.menu(this.scanner,this.accountRepository);
                 break;
             case MenuOptionEnum.EXIT:
+                System.out.println("Bye Bye :)");
                 break;
             default:
                 System.out.println("Invalid input");

@@ -14,6 +14,10 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Scanner;
 
+/**
+ * Submenu to deposit money into a specific account.
+ * <p> Uses input validation methods
+ */
 public final class DepositMenu {
     private DepositMenu() {
         throw new IllegalStateException("SubMenu class");

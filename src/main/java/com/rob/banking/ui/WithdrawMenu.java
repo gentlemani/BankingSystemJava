@@ -14,6 +14,10 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Scanner;
 
+/**
+ * Submenu class for withdrawing money from an account.
+ * <p>Do not instantiate.
+ */
 public final class WithdrawMenu {
     private WithdrawMenu() {
         throw new IllegalStateException("SubMenu class");
