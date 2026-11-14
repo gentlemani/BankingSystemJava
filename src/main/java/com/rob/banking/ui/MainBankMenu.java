@@ -13,10 +13,12 @@ import java.util.Scanner;
 public class MainBankMenu {
     private final Scanner scanner;
     private final AccountRepository accountRepository;
+    private final DeleteAccountMenu deleteAccountMenu;
 
     public MainBankMenu(Scanner scanner, String repositoryPath) {
         this.scanner = scanner;
         this.accountRepository = new AccountRepository(repositoryPath);
+        this.deleteAccountMenu = new DeleteAccountMenu(this.scanner,this.accountRepository);
         if(!accountRepository.fileExists()){
             try{
                 accountRepository.createFile();
@@ -24,6 +26,7 @@ public class MainBankMenu {
                 throw new RuntimeException(e);
             }
         }
+
     }
 
     public void menu() {
@@ -69,6 +72,9 @@ public class MainBankMenu {
                 break;
             case MenuOptionEnum.ACCOUNT_DETAIL:
                 AccountDetailMenu.menu(this.scanner,this.accountRepository);
+                break;
+            case MenuOptionEnum.DELETE_ACCOUNT:
+                this.deleteAccountMenu.menu();
                 break;
             case MenuOptionEnum.EXIT:
                 System.out.println("Bye Bye :)");
