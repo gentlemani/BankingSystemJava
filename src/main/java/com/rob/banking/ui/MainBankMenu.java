@@ -65,6 +65,7 @@ public class MainBankMenu {
                 WithdrawMenu.menu(this.scanner,this.accountRepository);
                 break;
             case MenuOptionEnum.ACCOUNT_DETAIL:
+                AccountDetailMenu.menu(this.scanner,this.accountRepository);
                 break;
             case MenuOptionEnum.EXIT:
                 break;
@@ -74,8 +75,6 @@ public class MainBankMenu {
         }
         return option;
     }
-
-
 
     /**
      * Validates numbers given a string
